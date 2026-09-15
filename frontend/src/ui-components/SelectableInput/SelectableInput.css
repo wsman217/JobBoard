@@ -1,0 +1,43 @@
+.selectable-input {
+    position: relative;
+    display: inline-block;
+    width: fit-content;
+}
+
+.selectable-input__measure {
+    position: absolute;
+    visibility: hidden;
+    white-space: pre;
+    pointer-events: none;
+    font: inherit;
+}
+
+.selectable-input__field {
+    box-sizing: border-box;
+    font: inherit;
+}
+
+.selectable-input__options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: #2d2e38;
+    border: 1px solid #646464;
+    z-index: 10;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+.selectable-input__options li {
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.selectable-input__options li:hover,
+.selectable-input__options li[data-selected="true"] {
+    background: #222228;
+}
