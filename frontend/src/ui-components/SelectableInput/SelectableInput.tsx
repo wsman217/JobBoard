@@ -7,6 +7,7 @@ import {
     useRef,
     useState,
     type KeyboardEventHandler,
+    type MouseEventHandler,
     type ReactElement,
     type ReactNode
 } from "react";
@@ -26,7 +27,7 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
     const [isOpen, setIsOpen] = useState(false);
     const [text, setText] = useState("");
     const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [activeIndex, setActiveIndex] = useState(-1);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const measureRef = useRef<HTMLSpanElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
@@ -77,7 +78,11 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
     const handleChange = (displayValue: string, dataValue: string) => {
         setText(displayValue);
         setValue(dataValue);
-        setActiveIndex(0);
+        const query = displayValue.trim().toLowerCase();
+        const exactIndex = options.findIndex(
+            option => option.props.id.toLowerCase() === query
+        );
+        setActiveIndex(exactIndex);
         setIsOpen(true);
     };
 
@@ -87,7 +92,11 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
     };
 
     const handleClick = () => {
-        setActiveIndex(0);
+        const query = text.trim().toLowerCase();
+        const selectedIndex = filteredOptions.findIndex(
+            option => option.props.id.toLowerCase() === query
+        );
+        setActiveIndex(selectedIndex);
         setIsOpen(true);
     };
 
@@ -99,14 +108,29 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
                 handleClick();
                 return;
             }
+            if (activeIndex === -1) {
+                setActiveIndex(key === "ArrowDown" ? 0 : filteredOptions.length - 1);
+                return;
+            }
             const delta = key === "ArrowDown" ? 1 : -1;
             setActiveIndex(prev => (prev + delta + filteredOptions.length) % filteredOptions.length);
-        } else if (key === "Enter" && isOpen && filteredOptions.length > 0) {
+        } else if (key === "Enter" && isOpen && activeIndex >= 0 && filteredOptions.length > 0) {
             event.preventDefault();
             const active = filteredOptions[activeIndex] as ReactElement<SelectableInputOptionProps>;
             handleSelect(active.props.id, active.props.value ?? active.props.id);
         } else if (key === "Escape" && isOpen) {
             setIsOpen(false);
+        }
+    };
+
+    const handleMouseMove: MouseEventHandler<HTMLUListElement> = event => {
+        const listItem = (event.target as HTMLElement).closest("li");
+        if (!listItem || !listRef.current) {
+            return;
+        }
+        const index = Array.from(listRef.current.children).indexOf(listItem);
+        if (index >= 0) {
+            setActiveIndex(index);
         }
     };
 
@@ -127,7 +151,8 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
             />
             {isOpen && filteredOptions.length > 0 && (
                 <ul ref={listRef} className="selectable-input__options"
-                    style={maxWidth !== undefined ? {maxWidth} : undefined}>
+                    style={maxWidth !== undefined ? {maxWidth} : undefined}
+                    onMouseMove={handleMouseMove}>
                     {filteredOptions.map((option, index) =>
                         cloneElement(option, {
                             onClick: handleSelect,

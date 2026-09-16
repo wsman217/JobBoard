@@ -37,7 +37,7 @@
     cursor: pointer;
 }
 
-.selectable-input__options li:hover,
 .selectable-input__options li[data-selected="true"] {
     background: #222228;
+    box-shadow: var(--shadow);
 }
