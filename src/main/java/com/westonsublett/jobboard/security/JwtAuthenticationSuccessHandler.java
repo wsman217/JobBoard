@@ -1,6 +1,6 @@
 package com.westonsublett.jobboard.security;
 
-import com.westonsublett.jobboard.config.JwtProperties;
+import com.westonsublett.jobboard.config.AppProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
@@ -29,14 +29,14 @@ import java.util.Objects;
 public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtEncoder jwtEncoder;
-    private final JwtProperties jwtProperties;
+    private final AppProperties appProperties;
     private final String redirectUri;
 
     public JwtAuthenticationSuccessHandler(JwtEncoder jwtEncoder,
-                                           JwtProperties jwtProperties,
+                                           AppProperties appProperties,
                                            @Value("${app.frontend.redirect-uri:http://localhost:3000}") String redirectUri) {
         this.jwtEncoder = jwtEncoder;
-        this.jwtProperties = jwtProperties;
+        this.appProperties = appProperties;
         this.redirectUri = redirectUri;
     }
 
@@ -59,10 +59,10 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer(jwtProperties.getIssuer())
-                .audience(List.of(jwtProperties.getAudience()))
+                .issuer(appProperties.getJwt().getIssuer())
+                .audience(List.of(appProperties.getJwt().getAudience()))
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(jwtProperties.getAccessTokenTtlSeconds()))
+                .expiresAt(now.plusSeconds(appProperties.getJwt().getAccessTokenTtlSeconds()))
                 .subject(subject)
                 .claim("email", attributes.get("email"))
                 .claim("roles", roles)

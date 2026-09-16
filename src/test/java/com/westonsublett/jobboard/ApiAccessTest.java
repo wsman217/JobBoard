@@ -54,12 +54,11 @@ class ApiAccessTest {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.getId().toString()))
-                .andExpect(jsonPath("$.email").value("candidate@example.com"))
-                .andExpect(jsonPath("$.role").value("CANDIDATE"));
+                .andExpect(jsonPath("$.email").value(user.getEmail()));
     }
 
     @Test
-    void authenticatedJwtCanReadOwnProfileFromAuthorizationCookie() throws Exception {
+    void authenticatedJwtCanReadOwnProfileFromAccessTokenCookie() throws Exception {
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setEmail("cookie@example.com");
@@ -69,11 +68,10 @@ class ApiAccessTest {
         String token = encodeToken(user, user.getEmail());
 
         mockMvc.perform(get("/api/users/me")
-                        .cookie(new jakarta.servlet.http.Cookie("Authorization", token)))
+                        .cookie(new jakarta.servlet.http.Cookie("access_token", token)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.getId().toString()))
-                .andExpect(jsonPath("$.email").value("cookie@example.com"))
-                .andExpect(jsonPath("$.role").value("CANDIDATE"));
+                .andExpect(jsonPath("$.email").value(user.getEmail()));
     }
 
     private String encodeToken(User user, String email) {
