@@ -12,6 +12,7 @@ import {
     type ReactNode
 } from "react";
 import type {SelectableInputOptionProps} from "./SelectableInputOption";
+import Input from "../Input";
 import "./SelectableInput.css";
 
 const INPUT_WIDTH_OFFSET = 24;
@@ -20,10 +21,11 @@ export interface SelectableInputProps {
     placeholder?: string;
     setValue: (value: string) => void;
     maxWidth?: number;
+    fitContent?: boolean;
     children: ReactNode;
 }
 
-const SelectableInput = ({placeholder, setValue, maxWidth, children}: SelectableInputProps) => {
+const SelectableInput = ({placeholder, setValue, maxWidth, fitContent, children}: SelectableInputProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [text, setText] = useState("");
     const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
@@ -55,10 +57,10 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
     }, [options, text]);
 
     useLayoutEffect(() => {
-        if (measureRef.current) {
+        if (!fitContent && measureRef.current) {
             setMeasuredWidth(measureRef.current.offsetWidth);
         }
-    }, [longestId]);
+    }, [longestId, fitContent]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -91,7 +93,7 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
         setIsOpen(false);
     };
 
-    const handleClick = () => {
+    const openMenu = () => {
         const query = text.trim().toLowerCase();
         const selectedIndex = filteredOptions.findIndex(
             option => option.props.id.toLowerCase() === query
@@ -105,7 +107,7 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
         if (key === "ArrowDown" || key === "ArrowUp") {
             event.preventDefault();
             if (!isOpen) {
-                handleClick();
+                openMenu();
                 return;
             }
             if (activeIndex === -1) {
@@ -135,23 +137,34 @@ const SelectableInput = ({placeholder, setValue, maxWidth, children}: Selectable
     };
 
     return (
-        <div ref={wrapperRef} className="selectable-input">
+        <div
+            ref={wrapperRef}
+            className={[
+                "selectable-input",
+                isOpen && filteredOptions.length > 0 && "selectable-input--open",
+                fitContent && "selectable-input--fit-content"
+            ].filter(Boolean).join(" ")}
+        >
             <span ref={measureRef} className="selectable-input__measure">{longestId}</span>
-            <input
+            <Input
                 className="selectable-input__field"
                 placeholder={placeholder}
                 value={text}
-                onClick={handleClick}
-                onChange={event => handleChange(event.target.value, event.target.value)}
+                onFocus={openMenu}
+                onBlur={() => setIsOpen(false)}
+                onClick={openMenu}
+                onChange={value => handleChange(value, value)}
                 onKeyDown={handleKeyDown}
                 style={{
-                    width: measuredWidth !== undefined ? measuredWidth + INPUT_WIDTH_OFFSET : undefined,
+                    width: fitContent ? "100%" : measuredWidth !== undefined ? measuredWidth + INPUT_WIDTH_OFFSET : undefined,
                     maxWidth
                 }}
             />
             {isOpen && filteredOptions.length > 0 && (
                 <ul ref={listRef} className="selectable-input__options"
                     style={maxWidth !== undefined ? {maxWidth} : undefined}
+                    onMouseDown={event => event.preventDefault()}
+                    onClick={event => event.preventDefault()}
                     onMouseMove={handleMouseMove}>
                     {filteredOptions.map((option, index) =>
                         cloneElement(option, {

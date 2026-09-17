@@ -1,0 +1,107 @@
+.test-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    box-sizing: border-box;
+}
+
+.test-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.test-header__title {
+    margin: 0;
+}
+
+.test-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.test-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.test-list__notice {
+    margin: 0;
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--secondary-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.test-list__notice--error {
+    color: var(--danger);
+}
+
+.test-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.test-table th,
+.test-table td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.test-table th {
+    color: var(--text-h);
+    font-weight: bold;
+    background: var(--accent-bg);
+}
+
+.test-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.test-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.test-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.test-form__label {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-h);
+}
+
+.test-form__error {
+    margin: 0;
+    color: var(--danger);
+}
+
+.test-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.test-form__actions--between {
+    justify-content: space-between;
+}
