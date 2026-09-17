@@ -1,3 +1,59 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.app-nav a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.app-nav .app-nav__links a:hover,
+.app-nav .app-nav__links a.active {
+  background: var(--accent-bg-hover);
+}
+
+.app-nav .app-nav__links a.active {
+  color: var(--accent);
+}
+
+.sign-in-option {
+  display: block;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 #center {
   display: flex;
   flex-direction: column;

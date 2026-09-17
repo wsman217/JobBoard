@@ -4,6 +4,11 @@
     width: fit-content;
 }
 
+.selectable-input--fit-content {
+    display: block;
+    width: 100%;
+}
+
 .selectable-input__measure {
     position: absolute;
     visibility: hidden;
@@ -17,6 +22,11 @@
     font: inherit;
 }
 
+.selectable-input--open .selectable-input__field {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
 .selectable-input__options {
     position: absolute;
     top: 100%;
@@ -24,8 +34,9 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    background: #2d2e38;
-    border: 1px solid #646464;
+    background: var(--secondary-bg);
+    border: 2px solid var(--border);
+    border-radius: 0 0 4px 4px;
     z-index: 10;
     width: 100%;
     box-sizing: border-box;
@@ -37,7 +48,7 @@
     cursor: pointer;
 }
 
-.selectable-input__options li:hover,
 .selectable-input__options li[data-selected="true"] {
-    background: #222228;
+    background: var(--secondary-bg-hover);
+    box-shadow: var(--shadow);
 }
