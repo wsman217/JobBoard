@@ -88,4 +88,24 @@ export class MockApi implements JobActivitiesApi {
         this.activities = [created, ...this.activities];
         return created;
     }
+
+    async update(id: string, activity: NewJobActivity): Promise<JobActivity> {
+        await delay(NETWORK_DELAY_MS);
+        const index = this.activities.findIndex(existing => existing.id === id);
+        if (index === -1) {
+            throw new Error("Job activity not found");
+        }
+        const updated: JobActivity = {id, ...activity};
+        this.activities = [
+            ...this.activities.slice(0, index),
+            updated,
+            ...this.activities.slice(index + 1)
+        ];
+        return updated;
+    }
+
+    async delete(id: string): Promise<void> {
+        await delay(NETWORK_DELAY_MS);
+        this.activities = this.activities.filter(activity => activity.id !== id);
+    }
 }

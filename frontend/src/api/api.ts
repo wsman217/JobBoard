@@ -1,6 +1,6 @@
 import type {JobActivitiesApi, JobActivity, JobActivityFilters, NewJobActivity} from "./types";
 
-const API_URL = "https://api.int-test.com/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const buildQuery = (filters: JobActivityFilters): string => {
     const params = new URLSearchParams();
@@ -34,5 +34,28 @@ export const api: JobActivitiesApi = {
             throw new Error(`Failed to create job activity (${response.status})`);
         }
         return await response.json() as Promise<JobActivity>;
+    },
+
+    async update(id: string, activity: NewJobActivity) {
+        const response = await fetch(`${API_URL}/job-activities/${id}`, {
+            method: "PUT",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(activity)
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to update job activity (${response.status})`);
+        }
+        return await response.json() as Promise<JobActivity>;
+    },
+
+    async delete(id: string) {
+        const response = await fetch(`${API_URL}/job-activities/${id}`, {
+            method: "DELETE",
+            credentials: "include"
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to delete job activity (${response.status})`);
+        }
     }
 };

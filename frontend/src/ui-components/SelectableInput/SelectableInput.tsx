@@ -17,7 +17,15 @@ import "./SelectableInput.css";
 
 const INPUT_WIDTH_OFFSET = 24;
 
+interface DropdownPlacement {
+    top: number;
+    left: number;
+    width: number;
+}
+
 export interface SelectableInputProps {
+    value?: string;
+    label?: string;
     placeholder?: string;
     setValue: (value: string) => void;
     maxWidth?: number;
@@ -25,11 +33,12 @@ export interface SelectableInputProps {
     children: ReactNode;
 }
 
-const SelectableInput = ({placeholder, setValue, maxWidth, fitContent, children}: SelectableInputProps) => {
+const SelectableInput = ({value, label, placeholder, setValue, maxWidth, fitContent, children}: SelectableInputProps) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [text, setText] = useState("");
+    const [text, setText] = useState(value ?? "");
     const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
     const [activeIndex, setActiveIndex] = useState(-1);
+    const [placement, setPlacement] = useState<DropdownPlacement>({top: 0, left: 0, width: 0});
     const wrapperRef = useRef<HTMLDivElement>(null);
     const measureRef = useRef<HTMLSpanElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
@@ -61,6 +70,43 @@ const SelectableInput = ({placeholder, setValue, maxWidth, fitContent, children}
             setMeasuredWidth(measureRef.current.offsetWidth);
         }
     }, [longestId, fitContent]);
+
+    useEffect(() => {
+        setText(value ?? "");
+    }, [value]);
+
+    useLayoutEffect(() => {
+        if (!isOpen || filteredOptions.length === 0) {
+            return;
+        }
+        const updatePlacement = () => {
+            const rect = wrapperRef.current?.getBoundingClientRect();
+            if (!rect) {
+                return;
+            }
+            const listHeight = listRef.current?.offsetHeight ?? 0;
+            const belowSpace = window.innerHeight - rect.bottom;
+            const aboveSpace = rect.top;
+            const openUp = listHeight > belowSpace && aboveSpace > belowSpace;
+            const next = {
+                top: openUp ? rect.top - listHeight : rect.bottom,
+                left: rect.left,
+                width: rect.width
+            };
+            setPlacement(current =>
+                current.top === next.top && current.left === next.left && current.width === next.width
+                    ? current
+                    : next
+            );
+        };
+        updatePlacement();
+        window.addEventListener("resize", updatePlacement);
+        document.addEventListener("scroll", updatePlacement, true);
+        return () => {
+            window.removeEventListener("resize", updatePlacement);
+            document.removeEventListener("scroll", updatePlacement, true);
+        };
+    }, [isOpen, filteredOptions.length]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -136,6 +182,8 @@ const SelectableInput = ({placeholder, setValue, maxWidth, fitContent, children}
         }
     };
 
+    const wrapperRect = wrapperRef.current?.getBoundingClientRect();
+
     return (
         <div
             ref={wrapperRef}
@@ -148,6 +196,7 @@ const SelectableInput = ({placeholder, setValue, maxWidth, fitContent, children}
             <span ref={measureRef} className="selectable-input__measure">{longestId}</span>
             <Input
                 className="selectable-input__field"
+                label={label}
                 placeholder={placeholder}
                 value={text}
                 onFocus={openMenu}
@@ -162,7 +211,13 @@ const SelectableInput = ({placeholder, setValue, maxWidth, fitContent, children}
             />
             {isOpen && filteredOptions.length > 0 && (
                 <ul ref={listRef} className="selectable-input__options"
-                    style={maxWidth !== undefined ? {maxWidth} : undefined}
+                    style={{
+                        position: "fixed",
+                        top: placement.top,
+                        left: wrapperRect?.left ?? placement.left,
+                        width: wrapperRect?.width ?? placement.width,
+                        maxWidth: maxWidth !== undefined ? maxWidth : undefined
+                    }}
                     onMouseDown={event => event.preventDefault()}
                     onClick={event => event.preventDefault()}
                     onMouseMove={handleMouseMove}>
