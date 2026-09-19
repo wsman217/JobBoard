@@ -37,8 +37,9 @@ public class OidcUserServiceAdapter implements OAuth2UserService<OidcUserRequest
         String subject = (String) attributes.get("sub");
         String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
+        String givenName = (String) attributes.get("given_name");
 
-        User user = userService.findOrCreateOAuthUser(provider, subject, email, name);
+        User user = userService.findOrCreateOAuthUser(provider, subject, email, name, givenName);
 
         Map<String, Object> enriched = new HashMap<>(attributes);
         enriched.put("app_user_id", user.getId().toString());

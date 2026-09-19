@@ -40,11 +40,12 @@ public class UserController {
         MeResponse response = new MeResponse(
                 user.getId(),
                 user.getEmail(),
-                user.getName());
+                user.getName(),
+                user.getGivenName());
 
         return ResponseEntity.ok(response);
     }
 
-    public record MeResponse(UUID id, String email, String name) {
+    public record MeResponse(UUID id, String email, String name, String givenName) {
     }
 }

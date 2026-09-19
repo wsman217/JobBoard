@@ -19,4 +19,6 @@ export type NewJobActivity = Omit<JobActivity, "id">;
 export interface JobActivitiesApi {
     list(filters?: JobActivityFilters): Promise<JobActivity[]>;
     create(activity: NewJobActivity): Promise<JobActivity>;
+    update(id: string, activity: NewJobActivity): Promise<JobActivity>;
+    delete(id: string): Promise<void>;
 }

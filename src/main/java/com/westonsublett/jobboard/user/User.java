@@ -25,6 +25,9 @@ public class User {
 
     private String name;
 
+    @Column(name="given_name")
+    private String givenName;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

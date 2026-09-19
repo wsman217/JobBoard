@@ -24,13 +24,13 @@ public class UserService {
     }
 
     @Transactional
-    public User findOrCreateOAuthUser(String provider, String subject, String email, String name) {
+    public User findOrCreateOAuthUser(String provider, String subject, String email, String name, String givenName) {
         UserOAuthAccount account = oauthAccountRepository
                 .findByProviderAndProviderSubject(provider, subject)
                 .orElse(null);
 
         if (account != null) {
-            updateProfile(account.getUser(), email, name);
+            updateProfile(account.getUser(), email, name, givenName);
             return account.getUser();
         }
 
@@ -43,7 +43,7 @@ public class UserService {
             user.setEmail(email);
             user.setName(name);
         } else {
-            updateProfile(user, email, name);
+            updateProfile(user, email, name, givenName);
         }
         user = userRepository.save(user);
 
@@ -57,12 +57,15 @@ public class UserService {
         return user;
     }
 
-    private void updateProfile(User user, String email, String name) {
+    private void updateProfile(User user, String email, String name, String givenName) {
         if (email != null && !email.isBlank()) {
             user.setEmail(email);
         }
         if (name != null && !name.isBlank()) {
             user.setName(name);
+        }
+        if (givenName != null && !givenName.isBlank()) {
+            user.setGivenName(givenName);
         }
     }
 }
