@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -23,7 +24,8 @@ public class SecurityConfig {
                                                    OAuth2UserService<OidcUserRequest, OidcUser> oAuth2UserService,
                                                    JwtAuthenticationSuccessHandler successHandler,
                                                    CookieBearerTokenResolver bearerTokenResolver,
-                                                   ApiAuthenticationEntryPoint authenticationEntryPoint) {
+                                                   ApiAuthenticationEntryPoint authenticationEntryPoint,
+                                                   LoginRedirectCookie loginRedirectCookie) {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -40,7 +42,9 @@ public class SecurityConfig {
                         .bearerTokenResolver(bearerTokenResolver)
                         .jwt(jwt -> {
                         })
-                );
+                )
+                .addFilterBefore(new LoginRedirectCaptureFilter(loginRedirectCookie),
+                        OAuth2AuthorizationRequestRedirectFilter.class);
 
         return http.build();
     }

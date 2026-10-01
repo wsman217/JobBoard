@@ -11,6 +11,15 @@ public class AppProperties {
 
     private Jwt jwt = new Jwt();
 
+    private Frontend frontend = new Frontend();
+
+    @Getter
+    @Setter
+    public static class Frontend {
+
+        private String redirectUri = "http://localhost:3000";
+    }
+
     @Getter
     @Setter
     public static class Jwt {

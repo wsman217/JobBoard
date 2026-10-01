@@ -6,6 +6,7 @@ import Button from "./ui-components/Button";
 import CalendarSelector from "./ui-components/CalendarSelector";
 import Modal from "./ui-components/Modal";
 import TestPage from "./pages/TestPage";
+import {beginGoogleLogin, googleLoginUrl} from "./api/auth";
 
 function Home() {
     const [date, setDate] = useState(new Date());
@@ -13,7 +14,7 @@ function Home() {
     return (
         <section id="center">
             <div>
-                <a href="https://api.int-test.com/oauth2/authorization/google">Sign in with Google</a>
+                <a href={googleLoginUrl()}>Sign in with Google</a>
                 <br/>
                 <a onClick={async () => {
                     const response = await fetch("https://api.int-test.com/api/users/me", {
@@ -60,7 +61,7 @@ function App() {
             <Modal open={signInOpen} onClose={() => setSignInOpen(false)} title="Sign in">
                 <Button
                     className="sign-in-option"
-                    onClick={() => window.location.assign("https://api.int-test.com/oauth2/authorization/google")}
+                    onClick={beginGoogleLogin}
                 >
                     Sign in with Google
                 </Button>

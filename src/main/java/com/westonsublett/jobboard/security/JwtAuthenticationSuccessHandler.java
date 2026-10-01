@@ -4,7 +4,6 @@ import com.westonsublett.jobboard.config.AppProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
@@ -30,14 +29,25 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
     private final JwtEncoder jwtEncoder;
     private final AppProperties appProperties;
-    private final String redirectUri;
+    private final String frontendBase;
+    private final LoginRedirectCookie loginRedirectCookie;
 
     public JwtAuthenticationSuccessHandler(JwtEncoder jwtEncoder,
                                            AppProperties appProperties,
-                                           @Value("${app.frontend.redirect-uri:http://localhost:3000}") String redirectUri) {
+                                           LoginRedirectCookie loginRedirectCookie) {
         this.jwtEncoder = jwtEncoder;
         this.appProperties = appProperties;
-        this.redirectUri = redirectUri;
+        this.loginRedirectCookie = loginRedirectCookie;
+        this.frontendBase = stripTrailingSlashes(appProperties.getFrontend().getRedirectUri());
+    }
+
+    private static String stripTrailingSlashes(String uri) {
+        int end = uri.length();
+        while (end > 0 && uri.charAt(end - 1) == '/') {
+            end--;
+        }
+
+        return uri.substring(0, end);
     }
 
     @Override
@@ -88,7 +98,13 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, resCookie.toString());
-        response.sendRedirect(redirectUri);
+
+        String target = loginRedirectCookie.readFrom(request)
+                .map(frontendBase::concat)
+                .orElseGet(appProperties.getFrontend()::getRedirectUri);
+
+        loginRedirectCookie.clear(response);
+        response.sendRedirect(target);
     }
 
     private List<String> getRoles(Authentication authentication) {
